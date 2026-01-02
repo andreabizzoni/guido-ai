@@ -1,5 +1,10 @@
+from app.agent import Agent
+
+
 def main():
     print("\nProgram starting")
+    agent = Agent()
+
     while True:
         try:
             user_query = input("\nYou: ").strip()
@@ -10,8 +15,7 @@ def main():
             if user_query.lower() in ["exit", "quit", "q"]:
                 break
 
-            # Process query
-            agent_answer = "blank_answer_here"
+            agent_answer = agent.answer(user_query)
 
             print(f"\nGuido: {agent_answer}")
 
