@@ -1,7 +1,7 @@
 from app.agent import Agent
 
 
-def main():
+def main() -> None:
     print("\nProgram starting")
     agent = Agent()
 
