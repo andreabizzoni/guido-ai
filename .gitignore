@@ -14,3 +14,4 @@ wheels/
 
 # Credentials
 credentials.json
+*.pickle
