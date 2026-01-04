@@ -7,9 +7,7 @@ import os.path
 import pickle
 from .models.calendar_models import (
     CalendarEventToolCall,
-    CalendarEvent,
     CalendarEventResponse,
-    DateTimeData,
 )
 from .config.settings import settings
 
@@ -49,22 +47,11 @@ class CalendarClient:
                 "Failed to create calendar event: Google Calendar service not initialized."
             )
         try:
-            request_body = CalendarEvent(
-                summary=event.summary,
-                start=DateTimeData(
-                    dateTime=event.start,
-                ),
-                end=DateTimeData(
-                    dateTime=event.end,
-                ),
-                description=event.description,
-                location=event.location,
-            )
             response = (
                 self.service.events()
                 .insert(
                     calendarId=settings.email_address,
-                    body=request_body.model_dump(),
+                    body=event.model_dump(),
                 )
                 .execute()
             )

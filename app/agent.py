@@ -1,6 +1,7 @@
 from openai import OpenAI
 from .config.settings import settings
 from langfuse import observe, Langfuse
+from datetime import datetime
 
 from .calendar_client import CalendarClient
 from .models.calendar_models import CalendarEventToolCall
@@ -19,7 +20,9 @@ class Agent:
         self.context = [
             {
                 "role": "system",
-                "content": "You are a helpful assistant, ready to answer the user or perform actions via the tools you have available",
+                "content": f"You are a helpful assistant, \
+                ready to answer the user or perform actions via the tools you have available. \
+                Today's date and current time are: {datetime.now()}.",
             }
         ]
         self.calendar_client = CalendarClient()

@@ -12,12 +12,26 @@ def create_event_tool() -> dict:
                     "description": "The title of the event.",
                 },
                 "start": {
-                    "type": "string",
-                    "description": "The event start time in RFC3339 format: YYYY-MM-DDTHH:MM:SSZ. If not provided by the user, estimate based on the type of activity being scheduled.",
+                    "type": "object",
+                    "properties": {
+                        "dateTime": {
+                            "type": "string",
+                            "description": "The event start time in RFC3339 format: YYYY-MM-DDTHH:MM:SSZ. If not provided by the user, estimate based on the type of activity being scheduled.",
+                        },
+                    },
+                    "required": ["dateTime"],
+                    "additionalProperties": False,
                 },
                 "end": {
-                    "type": "string",
-                    "description": "The event end time in RFC3339 format: YYYY-MM-DDTHH:MM:SSZ. If not provided by the user, estimate based on the type of activity being scheduled.",
+                    "type": "object",
+                    "properties": {
+                        "dateTime": {
+                            "type": "string",
+                            "description": "The event end time in RFC3339 format: YYYY-MM-DDTHH:MM:SSZ. If not provided by the user, estimate based on the type of activity being scheduled.",
+                        },
+                    },
+                    "required": ["dateTime"],
+                    "additionalProperties": False,
                 },
                 "description": {
                     "type": "string",
