@@ -5,8 +5,16 @@ description = "Guido AI"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "google-api-python-client>=2.187.0",
+    "google-auth-httplib2>=0.3.0",
+    "google-auth-oauthlib>=1.2.3",
     "langfuse>=3.11.2",
     "openai>=2.14.0",
     "pydantic>=2.12.5",
     "pydantic-settings>=2.12.0",
+]
+
+[dependency-groups]
+dev = [
+    "ipykernel>=7.1.0",
 ]

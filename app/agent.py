@@ -1,6 +1,7 @@
 from openai import OpenAI
 from .config.settings import settings
 from langfuse import observe, Langfuse
+from tools.calendar_tools import create_event_tool
 
 
 class Agent:
@@ -13,6 +14,7 @@ class Agent:
             base_url=settings.langfuse_base_url,
         )
         self.context = [{"role": "system", "content": "You are a helpful assistant"}]
+        self.tools = [create_event_tool()]
 
     @observe(as_type="generation", capture_input=False, capture_output=False)
     def answer(self, query: str) -> str:
@@ -21,6 +23,7 @@ class Agent:
         response = self.client.responses.create(
             model=self.model,
             input=self.context,  # type: ignore
+            tools=self.tools,
         )
         output_text = response.output_text
 
