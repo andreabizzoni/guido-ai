@@ -4,8 +4,8 @@ from langfuse import observe, Langfuse
 from datetime import datetime
 
 from .calendar_client import CalendarClient
-from .models.calendar_models import CalendarEventToolCall
-from .tools.calendar_tools import create_event_tool
+from .models.calendar_models import CalendarEvent, CalendarTimeWindow
+from .tools.calendar_tools import create_event_tool, read_calendar_tool
 
 
 class Agent:
@@ -20,26 +20,31 @@ class Agent:
         self.context = [
             {
                 "role": "system",
-                "content": f"""You are a helpful assistant, 
-                ready to answer the user or perform actions via the tools you have available. 
+                "content": f"""You are a helpful AI assistant named Guido, 
+                be ready to answer the user's questions or perform actions via the tools you have available. 
                 Today's date and current time are: {datetime.now()}.""",
             }
         ]
         self.calendar_client = CalendarClient()
-        self.tools = [create_event_tool()]
+        self.tools = [create_event_tool(), read_calendar_tool()]
         self.max_turns = 5
 
     def call_function(self, name: str, args: str) -> str:
-        if name == "create_calendar_event":
-            try:
-                validated_tool_call = CalendarEventToolCall.model_validate_json(args)
-                return self.calendar_client.create_event(
-                    validated_tool_call
-                ).model_dump_json(indent=2)
-            except Exception as e:
-                print(f"Tool call to {name} failed: {e}")
-                return f"Tool call to {name} failed. Either try a different tool or tell the user you are unable to complete their request right now."
-        return f"tool {name} does not exist. Either try a different tool or tell the user you are unable to complete their request right now."
+        try:
+            if name == "create_calendar_event":
+                validated_args = CalendarEvent.model_validate_json(args)
+                return self.calendar_client.create_event(validated_args).model_dump_json(indent=2)
+
+            if name == "read_calendar":
+                validated_args = CalendarTimeWindow.model_validate_json(args)
+                events = self.calendar_client.read_calendar(validated_args)
+                return "\n".join([event.model_dump_json(indent=2) for event in events])
+
+            return f"tool {name} does not exist."
+
+        except Exception as e:
+            print(f"Tool call to {name} failed: {e}")
+            return f"Tool call to {name} failed. Either try a different tool or tell the user you are unable to complete their request right now."
 
     @observe(as_type="generation", capture_input=False, capture_output=False)
     def answer(self, query: str) -> str:
@@ -49,8 +54,8 @@ class Agent:
         while turns < self.max_turns:
             response = self.client.responses.create(
                 model=self.model,
-                input=self.context,
-                tools=self.tools,
+                input=self.context,  # type: ignore[arg-type]
+                tools=self.tools,  # type: ignore[arg-type]
             )
 
             self.langfuse.update_current_generation(

@@ -1,4 +1,7 @@
-def create_event_tool() -> dict:
+from typing import Any
+
+
+def create_event_tool() -> dict[str, Any]:
     return {
         "type": "function",
         "name": "create_calendar_event",
@@ -43,6 +46,30 @@ def create_event_tool() -> dict:
                 },
             },
             "required": ["summary", "start", "end", "description", "location"],
+            "additionalProperties": False,
+        },
+    }
+
+
+def read_calendar_tool() -> dict[str, Any]:
+    return {
+        "type": "function",
+        "name": "read_calendar",
+        "description": "Read the user's calendar to see what events are scheduled within a time window [start, end]. Use this when you need visibility over the user's calendar.",
+        "strict": True,
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "start": {
+                    "type": "string",
+                    "description": "The start of the time window you want to view in RFC3339 format: YYYY-MM-DDTHH:MM:SSZ.",
+                },
+                "end": {
+                    "type": "string",
+                    "description": "The end of the time window you want to view in RFC3339 format: YYYY-MM-DDTHH:MM:SSZ.",
+                },
+            },
+            "required": ["start", "end"],
             "additionalProperties": False,
         },
     }

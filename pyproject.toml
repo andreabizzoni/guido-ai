@@ -18,3 +18,15 @@ dependencies = [
 dev = [
     "ipykernel>=7.1.0",
 ]
+
+[tool.black]
+line-length = 120
+target-version = ["py312"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"

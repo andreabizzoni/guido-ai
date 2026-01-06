@@ -1,14 +1,9 @@
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
-
-# from datetime import datetime, timedelta
 import os.path
 import pickle
-from .models.calendar_models import (
-    CalendarEventToolCall,
-    CalendarEventResponse,
-)
+from .models.calendar_models import CalendarEvent, CalendarTimeWindow
 from .config.settings import settings
 
 
@@ -41,21 +36,38 @@ class CalendarClient:
 
         self.service = build("calendar", "v3", credentials=self.creds)
 
-    def create_event(self, event: CalendarEventToolCall) -> CalendarEventResponse:
+    def create_event(self, event: CalendarEvent) -> CalendarEvent:
         if self.service is None:
-            raise Exception(
-                "Failed to create calendar event: Google Calendar service not initialized."
-            )
+            raise Exception("Failed to create calendar event: Google Calendar service not initialized.")
         try:
             response = (
                 self.service.events()
                 .insert(
                     calendarId=settings.email_address,
-                    body=event.model_dump(),
+                    body=event.model_dump(exclude={"status"}),
                 )
                 .execute()
             )
-            return CalendarEventResponse.model_validate(obj=response, extra="ignore")
+            return CalendarEvent.model_validate(obj=response, extra="ignore")
 
         except Exception as e:
             raise Exception(f"Failed to create calendar event: {e}") from e
+
+    def read_calendar(self, time_window: CalendarTimeWindow) -> list[CalendarEvent]:
+        if self.service is None:
+            raise Exception("Failed to read calendar: Google Calendar service not initialized.")
+        try:
+            events = (
+                self.service.events()
+                .list(
+                    calendarId=settings.email_address,
+                    timeMin=time_window.start,
+                    timeMax=time_window.end,
+                    singleEvents=True,
+                    orderBy="startTime",
+                )
+                .execute()
+            )
+            return [CalendarEvent.model_validate(obj=event, extra="ignore") for event in events["items"]]
+        except Exception as e:
+            raise Exception(f"Failed to read calendar: {e}") from e
